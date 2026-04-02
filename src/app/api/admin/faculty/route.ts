@@ -24,7 +24,7 @@ export async function GET() {
 // POST - Create new faculty
 export async function POST(request: NextRequest) {
   try {
-    const { name, title, department, email } = await request.json();
+    const { name, title, position, email } = await request.json();
 
     if (!name) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         title: title || null,
-        department: department || null,
+        position: position || null,
         email: email || null
       }
     });
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 // PUT - Update faculty
 export async function PUT(request: NextRequest) {
   try {
-    const { id, name, title, department, email } = await request.json();
+    const { id, name, title, position, email } = await request.json();
 
     if (!id) {
       return NextResponse.json(
@@ -79,7 +79,7 @@ export async function PUT(request: NextRequest) {
       data: {
         name,
         title: title || null,
-        department: department || null,
+        department: position || null,
         email: email || null
       }
     });
