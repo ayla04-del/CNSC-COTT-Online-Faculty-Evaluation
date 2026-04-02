@@ -199,7 +199,7 @@ export default function ManageFaculty() {
                   fontSize: isMobile() ? '13px' : '15px', 
                   borderBottom: '2px solid #e0e0e0', 
                   whiteSpace: 'nowrap' 
-                }}>Department</th>
+                }}>Position</th>
                 <th style={{ 
                   padding: isMobile() ? '14px 12px' : '18px 24px', 
                   textAlign: 'left', 
