@@ -46,7 +46,7 @@ export default function ManageFaculty() {
     const department = (f.position || '').toLowerCase();
     const email = (f.email || '').toLowerCase();
     const search = searchTerm.toLowerCase();
-    return name.includes(search) || department.includes(search) || email.includes(search);
+    return name.includes(search) || position.includes(search) || email.includes(search);
   });
 
   const handleAdd = () => {
