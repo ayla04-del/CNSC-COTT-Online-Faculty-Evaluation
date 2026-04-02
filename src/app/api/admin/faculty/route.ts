@@ -25,15 +25,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const { name, title, position, email } = await request.json();
+    if (!name) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
 
-    if (!name) {
-      return NextResponse.json(
-        { error: 'Name is required' },
-        { status: 400 }
-      );
-    }
-
-    const faculty = await db.faculty.create({
+    await db.faculty.create({
       data: {
         name,
         title: title || null,
@@ -42,16 +36,13 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({
-      success: true,
-      faculty
-    });
+    // return full updated list
+    const faculty = await db.faculty.findMany({ orderBy: { createdAt: 'desc' } });
+
+    return NextResponse.json({ success: true, faculty });
   } catch (error: any) {
     console.error('Create faculty error:', error);
-    return NextResponse.json(
-      { error: 'Failed to create faculty' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create faculty' }, { status: 500 });
   }
 }
 
@@ -59,41 +50,26 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { id, name, title, position, email } = await request.json();
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Faculty ID is required' },
-        { status: 400 }
-      );
-    }
-
-    if (!name) {
-      return NextResponse.json(
-        { error: 'Name is required' },
-        { status: 400 }
-      );
-    }
+    if (!id) return NextResponse.json({ error: 'Faculty ID is required' }, { status: 400 });
+    if (!name) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
 
     await db.faculty.update({
       where: { id },
       data: {
         name,
         title: title || null,
-        department: position || null,
+        position: position || null, // <-- important fix
         email: email || null
       }
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Faculty updated successfully'
-    });
+    // return full updated list
+    const faculty = await db.faculty.findMany({ orderBy: { createdAt: 'desc' } });
+
+    return NextResponse.json({ success: true, faculty });
   } catch (error: any) {
     console.error('Update faculty error:', error);
-    return NextResponse.json(
-      { error: 'Failed to update faculty' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update faculty' }, { status: 500 });
   }
 }
 
@@ -102,19 +78,10 @@ export async function DELETE(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'Faculty ID is required' }, { status: 400 });
 
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Faculty ID is required' },
-        { status: 400 }
-      );
-    }
-
-    // Check if faculty has subjects
-    const subjects = await db.subject.findMany({
-      where: { instructorId: id }
-    });
-
+    // check if faculty has assigned subjects
+    const subjects = await db.subject.findMany({ where: { instructorId: id } });
     if (subjects.length > 0) {
       return NextResponse.json(
         { error: 'Cannot delete faculty with assigned subjects. Please reassign or delete subjects first.' },
@@ -122,19 +89,14 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await db.faculty.delete({
-      where: { id }
-    });
+    await db.faculty.delete({ where: { id } });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Faculty deleted successfully'
-    });
+    // return full updated list
+    const faculty = await db.faculty.findMany({ orderBy: { createdAt: 'desc' } });
+
+    return NextResponse.json({ success: true, faculty });
   } catch (error: any) {
     console.error('Delete faculty error:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete faculty' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to delete faculty' }, { status: 500 });
   }
 }
